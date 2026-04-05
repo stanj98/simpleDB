@@ -58,5 +58,4 @@ func TestPageWriteRead(t *testing.T) {
 	if err == nil || err.Error() != expectedErr.Error() {
 		t.Fatalf("Write returned no error or what was not expected: got %q, want %q", err, expectedErr)
 	}
-
 }
