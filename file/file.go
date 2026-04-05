@@ -8,15 +8,15 @@ import (
 )
 
 type FileMgr struct {
-	blocksize   int
+	Blocksize   int
 	dataDir     string
 	openedFiles map[string]*os.File
 	mu          sync.Mutex //when reading and writing to files, ensure 1 goroutine is used at a time
 }
 
-func NewFileMgr(dataDir string, blockSize int) *FileMgr {
+func NewFileMgr(dataDir string, blocksize int) *FileMgr {
 	return &FileMgr{
-		blocksize:   blockSize,
+		Blocksize:   blocksize,
 		dataDir:     dataDir,
 		openedFiles: make(map[string]*os.File),
 	}
@@ -32,7 +32,7 @@ func (fm *FileMgr) Read(blockID *BlockID, p *Page) (int, error) {
 		return 0, err
 	}
 
-	n, err := f.ReadAt(p.Bytes(), int64(blockID.Number*fm.blocksize))
+	n, err := f.ReadAt(p.Bytes(), int64(blockID.Number*fm.Blocksize))
 	if err != nil && err.Error() != "EOF" {
 		return 0, fmt.Errorf("Failed to read file: %v", err)
 	}
@@ -50,7 +50,7 @@ func (fm *FileMgr) Write(blockID *BlockID, p *Page) (int, error) {
 		return 0, err
 	}
 
-	n, err := f.WriteAt(p.Bytes(), int64(blockID.Number*fm.blocksize))
+	n, err := f.WriteAt(p.Bytes(), int64(blockID.Number*fm.Blocksize))
 	if err != nil && err.Error() != "EOF" {
 		return 0, fmt.Errorf("failed to read file: %v", err)
 	}
@@ -70,6 +70,17 @@ func (fm *FileMgr) Close() error {
 		}
 	}
 	return nil
+}
+
+// fileLength returns the number of blocks in the specified file
+func (fm *FileMgr) FileSize(fileName string) (int, error) {
+	file, err := fm.getFile(fileName)
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return 0, fmt.Errorf("Failed to get file info: %w", err)
+	}
+	return int(fileInfo.Size() / int64(fm.Blocksize)), nil
 }
 
 // getFile returns the file with the specified filename, creating it if it does not exist

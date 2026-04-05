@@ -48,26 +48,26 @@ func TestFileMgrWriteRead(t *testing.T) {
 }
 
 func checkWrite(t *testing.T, mgr *FileMgr, blockID *BlockID, data string) {
-	page := NewPage(mgr.blocksize)
+	page := NewPage(mgr.Blocksize)
 	page.Write(0, []byte(data))
 
 	n, err := mgr.Write(blockID, page)
 	if err != nil {
 		t.Fatalf("Write failed: %v", err)
 	}
-	if n != mgr.blocksize {
-		t.Fatalf("Write returned %d, want %d", n, mgr.blocksize)
+	if n != mgr.Blocksize {
+		t.Fatalf("Write returned %d, want %d", n, mgr.Blocksize)
 	}
 }
 
 func checkRead(t *testing.T, mgr *FileMgr, blockID *BlockID, want string) {
-	page := NewPage(mgr.blocksize)
+	page := NewPage(mgr.Blocksize)
 	n, err := mgr.Read(blockID, page)
 	if err != nil {
 		t.Fatalf("Read failed: %v", err)
 	}
-	if n != mgr.blocksize {
-		t.Fatalf("Read returned %d, want %d", n, mgr.blocksize)
+	if n != mgr.Blocksize {
+		t.Fatalf("Read returned %d, want %d", n, mgr.Blocksize)
 	}
 	if string(page.Bytes()) != want {
 		t.Fatalf("Read returned %q, want %q", page.Bytes(), want)
